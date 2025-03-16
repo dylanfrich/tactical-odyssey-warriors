@@ -61,21 +61,43 @@ const DeploymentPanel: React.FC = () => {
   const [selectedUnit, setSelectedUnit] = React.useState<UnitType | null>(null);
   const [deploymentMode, setDeploymentMode] = React.useState<boolean>(false);
   
+  // Listen for deploymentComplete events from GameGrid
+  React.useEffect(() => {
+    const handleDeploymentComplete = () => {
+      setSelectedUnit(null);
+      setDeploymentMode(false);
+    };
+    
+    window.addEventListener('deploymentComplete', handleDeploymentComplete);
+    return () => {
+      window.removeEventListener('deploymentComplete', handleDeploymentComplete);
+    };
+  }, []);
+  
   const handleUnitSelect = (type: UnitType) => {
     setSelectedUnit(type);
     setDeploymentMode(true);
+    
+    // Emit event to notify GameGrid about deployment mode
+    window.dispatchEvent(
+      new CustomEvent('deploymentModeChange', { 
+        detail: { active: true, unitType: type }
+      })
+    );
+    
     toast.info(`Select a position to deploy ${type}`);
   };
   
-  const handleDeployUnit = (position: Position) => {
-    if (!selectedUnit) return;
-    
-    // Attempting to deploy - this will be validated in the reducer
-    deployUnit(selectedUnit, position, currentPlayer);
-    
-    // Reset selection
+  const handleCancelDeployment = () => {
     setSelectedUnit(null);
     setDeploymentMode(false);
+    
+    // Emit event to notify GameGrid about deployment mode cancellation
+    window.dispatchEvent(
+      new CustomEvent('deploymentModeChange', { 
+        detail: { active: false, unitType: null }
+      })
+    );
   };
   
   // If not in deployment phase, don't show this panel
@@ -123,10 +145,7 @@ const DeploymentPanel: React.FC = () => {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => {
-                setSelectedUnit(null);
-                setDeploymentMode(false);
-              }}
+              onClick={handleCancelDeployment}
             >
               Cancel Deployment
             </Button>

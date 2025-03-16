@@ -11,6 +11,81 @@
   margin: 0 auto;
 }
 
+.hex-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.hex-cell {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.hex-cell:hover {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.hex-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes pulseHighlight {
+  0% { opacity: 0.7; }
+  50% { opacity: 0.9; }
+  100% { opacity: 0.7; }
+}
+
+.animate-pulse-highlight {
+  animation: pulseHighlight 2s infinite;
+}
+
+/* Background colors for team and terrain */
+.bg-team-blue {
+  background-color: #1d4ed8;
+}
+
+.bg-team-red {
+  background-color: #dc2626;
+}
+
+.bg-terrain-grass {
+  background-color: #4ade80;
+}
+
+.bg-terrain-water {
+  background-color: #38bdf8;
+}
+
+.bg-terrain-mountain {
+  background-color: #78716c;
+}
+
+.bg-terrain-road {
+  background-color: #d4d4d4;
+}
+
+.bg-action-move {
+  background-color: #818cf8;
+}
+
+.bg-action-attack {
+  background-color: #f87171;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;

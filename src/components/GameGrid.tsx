@@ -6,12 +6,40 @@ import { cn } from '@/lib/utils';
 import UnitDisplay from './UnitDisplay';
 
 const GameGrid: React.FC = () => {
-  const { state, selectUnit, moveUnit, attackUnit } = useGame();
+  const { state, selectUnit, moveUnit, attackUnit, deployUnit } = useGame();
   const { grid, selectedUnit, availableMoves, availableAttacks, currentPlayer, phase } = state;
   
+  // Get this from the DeploymentPanel
+  const [deploymentMode, setDeploymentMode] = React.useState<boolean>(false);
+  const [selectedUnitType, setSelectedUnitType] = React.useState<string | null>(null);
+  
+  // Subscribe to deployment panel events
+  React.useEffect(() => {
+    const handleDeploymentModeChange = (e: CustomEvent) => {
+      setDeploymentMode(e.detail.active);
+      setSelectedUnitType(e.detail.unitType);
+    };
+    
+    window.addEventListener('deploymentModeChange', handleDeploymentModeChange as EventListener);
+    return () => {
+      window.removeEventListener('deploymentModeChange', handleDeploymentModeChange as EventListener);
+    };
+  }, []);
+  
   const handleCellClick = (position: Position) => {
-    // If game is over or in deployment phase, do nothing
-    if (phase === 'gameOver' || phase === 'deployment') return;
+    // Handle deployment mode
+    if (phase === 'deployment' && deploymentMode && selectedUnitType) {
+      deployUnit(selectedUnitType as any, position, currentPlayer);
+      // Reset deployment mode after placing a unit
+      window.dispatchEvent(new CustomEvent('deploymentComplete'));
+      return;
+    }
+    
+    // If game is over, do nothing
+    if (phase === 'gameOver') return;
+    
+    // If in deployment phase but not actively placing a unit, do nothing
+    if (phase === 'deployment' && !deploymentMode) return;
     
     const cell = grid[position.y][position.x];
     
@@ -78,12 +106,19 @@ const GameGrid: React.FC = () => {
       pos => pos.x === x && pos.y === y
     );
     
+    // Add deployment mode indicator
+    const isDeploymentValid = phase === 'deployment' && deploymentMode &&
+      ((currentPlayer === 'blue' && x < grid[0].length / 3) || 
+       (currentPlayer === 'red' && x >= grid[0].length * 2 / 3)) &&
+      !cell.unit;
+    
     return cn(
       'hex-cell',
       terrainClasses[cell.terrain],
       isSelectedUnit && 'ring-2 ring-white ring-opacity-75',
       isValidMove && 'bg-action-move/70 animate-pulse-highlight',
       isValidAttack && 'bg-action-attack/70 animate-pulse-highlight',
+      isDeploymentValid && 'bg-green-500/30 animate-pulse-highlight',
     );
   };
   
