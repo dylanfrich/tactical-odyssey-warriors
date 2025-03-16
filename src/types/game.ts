@@ -45,7 +45,7 @@ export type GameState = {
   turn: number;
 };
 
-export type ActionType = 'select' | 'move' | 'attack' | 'cancel' | 'endTurn';
+export type ActionType = 'select' | 'move' | 'attack' | 'cancel' | 'endTurn' | 'deployUnit' | 'startBattle' | 'resetGame';
 
 export type GameAction = {
   type: ActionType;
