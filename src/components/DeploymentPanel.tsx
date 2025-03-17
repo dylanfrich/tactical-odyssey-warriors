@@ -56,7 +56,7 @@ const UnitOption: React.FC<UnitOptionProps> = ({ type, player, cost, selectedUni
 };
 
 const DeploymentPanel: React.FC = () => {
-  const { state, deployUnit } = useGame();
+  const { state, deployUnit, startBattle } = useGame();
   const { phase, blueCredits, redCredits, currentPlayer } = state;
   const [selectedUnit, setSelectedUnit] = React.useState<UnitType | null>(null);
   const [deploymentMode, setDeploymentMode] = React.useState<boolean>(false);
@@ -100,6 +100,10 @@ const DeploymentPanel: React.FC = () => {
     );
   };
   
+  const handleStartBattle = () => {
+    startBattle();
+  };
+  
   // If not in deployment phase, don't show this panel
   if (phase !== 'deployment') {
     return null;
@@ -140,7 +144,7 @@ const DeploymentPanel: React.FC = () => {
           onSelect={handleUnitSelect}
         />
         
-        {deploymentMode && (
+        {deploymentMode ? (
           <div className="pt-2">
             <Button
               variant="outline"
@@ -148,6 +152,16 @@ const DeploymentPanel: React.FC = () => {
               onClick={handleCancelDeployment}
             >
               Cancel Deployment
+            </Button>
+          </div>
+        ) : (
+          <div className="pt-2">
+            <Button 
+              variant="default" 
+              className="w-full"
+              onClick={handleStartBattle}
+            >
+              Start Battle
             </Button>
           </div>
         )}
